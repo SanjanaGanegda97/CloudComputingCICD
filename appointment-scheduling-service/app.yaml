@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appointment-scheduling-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: appointment-scheduling-service
+  template:
+    metadata:
+      labels:
+        app: appointment-scheduling-service
+    spec:
+      containers:
+      - name: appointment-scheduling
+        image: <ACCOUNT-ID>.dkr.ecr.<AWS-REGION>.amazonaws.com/appointment-scheduling-service:latest
+        ports:
+        - containerPort: 5001
+        env:
+        - name: ENVIRONMENT
+          valueFrom:
+            configMapKeyRef:
+              name: appointment-scheduling-config
+              key: ENVIRONMENT
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: appointment-scheduling-config
+              key: DATABASE_URL
+        - name: SERVICE_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: appointment-scheduling-config
+              key: SERVICE_NAME
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: appointment-scheduling-secret
+              key: DB_USERNAME
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: appointment-scheduling-secret
+              key: DB_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: appointment-scheduling-service
+spec:
+  selector:
+    app: appointment-scheduling-service
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 5001
+  type: LoadBalancer

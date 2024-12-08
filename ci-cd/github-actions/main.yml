@@ -1,0 +1,32 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Log in to Amazon ECR
+      run: |
+        aws ecr get-login-password --region <AWS-REGION> | docker login --username AWS --password-stdin <ACCOUNT-ID>.dkr.ecr.<AWS-REGION>.amazonaws.com
+
+    - name: Build and Push Docker Image
+      run: |
+        docker build -t patient-record-service ./patient-record-service
+        docker tag patient-record-service:latest <ACCOUNT-ID>.dkr.ecr.<AWS-REGION>.amazonaws.com/patient-record-service:latest
+        docker push <ACCOUNT-ID>.dkr.ecr.<AWS-REGION>.amazonaws.com/patient-record-service:latest
+
+    - name: Configure kubectl for EKS
+      run: |
+        aws eks update-kubeconfig --region <AWS-REGION> --name <EKS-CLUSTER-NAME>
+
+    - name: Deploy to Kubernetes
+      run: |
+        kubectl apply -f k8s/deployments/
+        kubectl apply -f k8s/services/

@@ -1,0 +1,26 @@
+{
+    "Version": "1",
+    "Dashboard": {
+      "Title": "HealthSync Metrics",
+      "Widgets": [
+        {
+          "Type": "BarChart",
+          "Title": "Appointments Per Doctor",
+          "DataSource": "Redshift",
+          "Query": "SELECT doctor_id, COUNT(*) AS total_appointments FROM appointments GROUP BY doctor_id",
+          "XAxis": "doctor_id",
+          "YAxis": "total_appointments"
+        },
+        {
+          "Type": "LineChart",
+          "Title": "Metrics Over Time",
+          "DataSource": "Redshift",
+          "Query": "SELECT metric_name, metric_value, timestamp FROM metrics",
+          "XAxis": "timestamp",
+          "YAxis": "metric_value",
+          "GroupBy": "metric_name"
+        }
+      ]
+    }
+  }
+  

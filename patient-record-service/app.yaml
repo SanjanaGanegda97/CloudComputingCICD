@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: patient-record-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: patient-record-service
+  template:
+    metadata:
+      labels:
+        app: patient-record-service
+    spec:
+      containers:
+      - name: patient-record
+        image: <ACCOUNT-ID>.dkr.ecr.<AWS-REGION>.amazonaws.com/patient-record-service:latest
+        ports:
+        - containerPort: 5000
+        env:
+        - name: ENVIRONMENT
+          valueFrom:
+            configMapKeyRef:
+              name: patient-record-config
+              key: ENVIRONMENT
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: patient-record-config
+              key: DATABASE_URL
+        - name: SERVICE_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: patient-record-config
+              key: SERVICE_NAME
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: patient-record-secret
+              key: DB_USERNAME
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: patient-record-secret
+              key: DB_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: patient-record-service
+spec:
+  selector:
+    app: patient-record-service
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 5005
+  type: LoadBalancer

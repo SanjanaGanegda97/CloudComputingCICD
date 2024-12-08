@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'kubernetes-services'
+    static_configs:
+      - targets:
+        - patient-record-service.<AWS-REGION>.elb.amazonaws.com:80
+        - appointment-scheduling-service.<AWS-REGION>.elb.amazonaws.com:80
+        - notification-service.<AWS-REGION>.elb.amazonaws.com:80
+        - aggregator-service.<AWS-REGION>.elb.amazonaws.com:80

@@ -1,0 +1,46 @@
+{
+    "dashboard": {
+      "annotations": {
+        "list": []
+      },
+      "panels": [
+        {
+          "type": "graph",
+          "title": "Request Count",
+          "targets": [
+            {
+              "expr": "rate(http_requests_total[1m])",
+              "legendFormat": "Request Count",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "type": "graph",
+          "title": "CPU Usage",
+          "targets": [
+            {
+              "expr": "rate(container_cpu_usage_seconds_total[1m])",
+              "legendFormat": "{{pod}}",
+              "refId": "B"
+            }
+          ]
+        },
+        {
+          "type": "graph",
+          "title": "Memory Usage",
+          "targets": [
+            {
+              "expr": "container_memory_working_set_bytes",
+              "legendFormat": "{{pod}}",
+              "refId": "C"
+            }
+          ]
+        }
+      ],
+      "title": "Application Metrics Dashboard",
+      "uid": "app-metrics-dashboard",
+      "version": 1
+    }
+  }
+  

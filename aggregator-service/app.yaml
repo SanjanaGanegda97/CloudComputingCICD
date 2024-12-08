@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aggregator-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aggregator-service
+  template:
+    metadata:
+      labels:
+        app: aggregator-service
+    spec:
+      containers:
+      - name: aggregator
+        image: <ACCOUNT-ID>.dkr.ecr.<AWS-REGION>.amazonaws.com/aggregator-service:latest
+        ports:
+        - containerPort: 5003
+        env:
+        - name: ENVIRONMENT
+          valueFrom:
+            configMapKeyRef:
+              name: aggregator-config
+              key: ENVIRONMENT
+        - name: REDSHIFT_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: aggregator-config
+              key: REDSHIFT_ENDPOINT
+        - name: SERVICE_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: aggregator-config
+              key: SERVICE_NAME
+        - name: REDSHIFT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: aggregator-secret
+              key: REDSHIFT_USERNAME
+        - name: REDSHIFT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: aggregator-secret
+              key: REDSHIFT_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aggregator-service
+spec:
+  selector:
+    app: aggregator-service
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 5003
+  type: LoadBalancer

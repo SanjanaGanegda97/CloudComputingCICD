@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_USERNAME = credentials('docker-username')
+        DOCKER_PASSWORD = credentials('docker-password')
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/your-repo-name/your-project.git'
+            }
+        }
+        stage('Build Docker Images') {
+            steps {
+                sh './scripts/build.sh'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh './scripts/test.sh'
+            }
+        }
+        stage('Push Docker Images') {
+            steps {
+                script {
+                    docker.withRegistry('', 'dockerhub') {
+                        sh './scripts/deploy.sh'
+                    }
+                }
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh 'kubectl apply -f k8s/deployments/'
+                sh 'kubectl apply -f k8s/services/'
+            }
+        }
+    }
+}
